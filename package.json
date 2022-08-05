@@ -1,0 +1,17 @@
+{
+  "name": "shiroko",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@serverless/compose": "^1.3.0",
+    "serverless": "^3.21.0",
+    "serverless-scriptable-plugin": "^1.2.2"
+  }
+}

@@ -1,0 +1,23 @@
+# dockerignore 확인용 명령
+# https://stackoverflow.com/a/68196656
+
+# editor
+.*.sw[a-z]
+.vscode
+
+# git
+.git
+lfs
+
+# code, repo
+.github/
+
+# elixir
+deps
+_build
+.elixir_ls
+**/cover/
+priv/plts
+
+# node.js
+**/node_modules/

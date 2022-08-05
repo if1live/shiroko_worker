@@ -1,0 +1,3 @@
+services:
+  hello-deno:
+    path: packages/hello-deno

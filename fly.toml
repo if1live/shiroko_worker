@@ -1,0 +1,17 @@
+app = "shiroko-worker"
+
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[build]
+dockerfile = "Dockerfile"
+
+[env]
+PORT = "8080"
+
+[experimental]
+allowed_public_ports = []
+auto_rollback = true
+
+[processes]
+# app = "run --allow-net /app/bundle.js"

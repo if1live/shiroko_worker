@@ -1,0 +1,68 @@
+service: hello-deno
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-scriptable-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+
+  # deno runtime layer는 us-east-1에만 있는 상태
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+
+  memorySize: 128
+  # deno runtime layer가 arm을 아직 지원하지 않음
+  architecture: x86_64
+
+  logRetentionInDays: 14
+  versionFunctions: false
+
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+
+  environment:
+    HANDLER_EXT: js
+    DENO_PERMISSIONS: --allow-env --allow-net --allow-read
+    DENO_UNSTABLE: 1
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    STAGE: ${self:provider.stage}
+
+package:
+  patterns:
+    - bundle.js
+  exclude:
+    - "*.ts"
+    - "*.json"
+    - "README.md"
+
+functions:
+  http:
+    handler: bundle.handle_http
+    layers:
+      - !GetAtt Deno.Outputs.LayerArn
+    url:
+      cors: true
+    events:
+      - httpApi:
+          method: "*"
+          path: /{pathname+}
+
+resources:
+  Transform: AWS::Serverless-2016-10-31
+  Resources:
+    Deno:
+      Type: AWS::Serverless::Application
+      Properties:
+        Location:
+          ApplicationId: arn:aws:serverlessrepo:us-east-1:390065572566:applications/deno
+          SemanticVersion: 1.24.1
+
+custom:
+  scriptHooks:
+    before:package:createDeploymentArtifacts: deno bundle handlers.ts bundle.js

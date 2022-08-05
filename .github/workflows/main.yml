@@ -1,0 +1,46 @@
+name: main
+
+on: [push, pull_request]
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  VITE_COMMIT_ID: ${{ github.sha }}
+
+jobs:
+  deno_check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: "1.24.1"
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.deno
+            ~/.cache/deno
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deps.ts') }}-${{ hashFiles('**/test_deps.ts') }}
+
+      - name: check worker.ts
+        working-directory: packages/hello-deno
+        run: deno check worker.ts
+
+      - name: test
+        working-directory: packages/hello-deno
+        run: deno test
+
+  deploy_worker:
+    if: ${{ github.event_name == 'push' && (github.ref_name == 'main') }}
+
+    needs: [deno_check]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: deploy
+        run: flyctl deploy --remote-only
+
